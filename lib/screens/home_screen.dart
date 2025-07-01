@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const HomeScreen({super.key, required this.scaffoldKey});
 
   @override
   Widget build(BuildContext context) {
@@ -10,11 +12,9 @@ class HomeScreen extends StatelessWidget {
         title: const Text('FootballStats'),
         centerTitle: true,
         actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.favorite),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => scaffoldKey.currentState?.openDrawer(),
           ),
         ],
       ),

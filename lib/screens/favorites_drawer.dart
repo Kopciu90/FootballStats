@@ -15,7 +15,7 @@ class FavoritesDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.green),
             child: Center(
               child: Text(
-                'Ulubione drużyny',
+                'Ulubione drużyny', // Zmieniony tytuł
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
@@ -24,7 +24,9 @@ class FavoritesDrawer extends StatelessWidget {
             child: Consumer<FavoritesProvider>(
               builder: (context, favorites, child) {
                 if (favorites.favoriteTeams.isEmpty) {
-                  return const Center(child: Text('Brak ulubionych drużyn'));
+                  return const Center(
+                    child: Text('Brak ulubionych drużyn'),
+                  );
                 }
                 return ListView.builder(
                   itemCount: favorites.favoriteTeams.length,
@@ -40,14 +42,17 @@ class FavoritesDrawer extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TeamDetailScreen(team: team),
+                            builder: (context) => TeamDetailScreen(
+                              team: team,
+                              scaffoldKey: GlobalKey(), // Tymczasowe rozwiązanie
+                            ),
                           ),
                         );
                       },
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () => 
-                          favorites.removeFavorite(team.id),
+                          favorites.removeFavoriteTeam(team.id),
                       ),
                     );
                   },

@@ -8,8 +8,13 @@ import 'team_detail_screen.dart';
 
 class TeamsScreen extends StatefulWidget {
   final String leagueName;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const TeamsScreen({super.key, required this.leagueName});
+  const TeamsScreen({
+    super.key, 
+    required this.leagueName,
+    required this.scaffoldKey,
+  });
 
   @override
   State<TeamsScreen> createState() => _TeamsScreenState();
@@ -38,6 +43,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
                 isGrid = !isGrid;
               });
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => widget.scaffoldKey.currentState?.openDrawer(),
           ),
         ],
       ),
@@ -86,7 +95,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TeamDetailScreen(team: team),
+                            builder: (context) => TeamDetailScreen(
+                              team: team,
+                              scaffoldKey: widget.scaffoldKey,
+                            ),
                           ),
                         );
                       },
@@ -109,16 +121,16 @@ class _TeamsScreenState extends State<TeamsScreen> {
                                 builder: (context, favorites, child) {
                                   return IconButton(
                                     icon: Icon(
-                                      favorites.isFavorite(team.id)
+                                      favorites.isFavoriteTeam(team.id)
                                           ? Icons.favorite
                                           : Icons.favorite_border,
                                       color: Colors.red,
                                     ),
                                     onPressed: () {
-                                      if (favorites.isFavorite(team.id)) {
-                                        favorites.removeFavorite(team.id);
+                                      if (favorites.isFavoriteTeam(team.id)) {
+                                        favorites.removeFavoriteTeam(team.id);
                                       } else {
-                                        favorites.addFavorite(team);
+                                        favorites.addFavoriteTeam(team);
                                       }
                                     },
                                   );
@@ -144,16 +156,16 @@ class _TeamsScreenState extends State<TeamsScreen> {
                         builder: (context, favorites, child) {
                           return IconButton(
                             icon: Icon(
-                              favorites.isFavorite(team.id)
+                              favorites.isFavoriteTeam(team.id)
                                   ? Icons.favorite
                                   : Icons.favorite_border,
                               color: Colors.red,
                             ),
                             onPressed: () {
-                              if (favorites.isFavorite(team.id)) {
-                                favorites.removeFavorite(team.id);
+                              if (favorites.isFavoriteTeam(team.id)) {
+                                favorites.removeFavoriteTeam(team.id);
                               } else {
-                                favorites.addFavorite(team);
+                                favorites.addFavoriteTeam(team);
                               }
                             },
                           );
@@ -163,7 +175,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TeamDetailScreen(team: team),
+                            builder: (context) => TeamDetailScreen(
+                              team: team,
+                              scaffoldKey: widget.scaffoldKey,
+                            ),
                           ),
                         );
                       },

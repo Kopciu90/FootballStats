@@ -5,8 +5,13 @@ import '../services/api_service.dart';
 
 class TeamDetailScreen extends StatefulWidget {
   final Team team;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const TeamDetailScreen({super.key, required this.team});
+  const TeamDetailScreen({
+    super.key, 
+    required this.team,
+    required this.scaffoldKey,
+  });
 
   @override
   State<TeamDetailScreen> createState() => _TeamDetailScreenState();
@@ -37,6 +42,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.team.name),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => widget.scaffoldKey.currentState?.openDrawer(),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

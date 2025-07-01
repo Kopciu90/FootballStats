@@ -6,7 +6,6 @@ import 'screens/home_screen.dart';
 import 'screens/leagues_screen.dart';
 import 'screens/teams_screen.dart';
 import 'screens/team_detail_screen.dart';
-// USUŃ TĘ LINIĘ: import 'models/team.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,20 +30,24 @@ class FootballStatsApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MainWrapper(),
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        '/leagues': (context) => const LeaguesScreen(),
-      },
     );
   }
 }
 
-class MainWrapper extends StatelessWidget {
+class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
+
+  @override
+  State<MainWrapper> createState() => _MainWrapperState();
+}
+
+class _MainWrapperState extends State<MainWrapper> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       drawer: const FavoritesDrawer(),
       body: Navigator(
         onGenerateRoute: (settings) {
@@ -52,19 +55,28 @@ class MainWrapper extends StatelessWidget {
             builder: (context) {
               switch (settings.name) {
                 case '/leagues':
-                  return const LeaguesScreen();
+                  return LeaguesScreen(scaffoldKey: _scaffoldKey);
                 case '/teams':
                   final args = settings.arguments as Map<String, dynamic>;
-                  return TeamsScreen(leagueName: args['leagueName']);
+                  return TeamsScreen(
+                    leagueName: args['leagueName'],
+                    scaffoldKey: _scaffoldKey,
+                  );
                 case '/team-detail':
                   final args = settings.arguments as Map<String, dynamic>;
-                  return TeamDetailScreen(team: args['team']);
+                  return TeamDetailScreen(
+                    team: args['team'],
+                    scaffoldKey: _scaffoldKey,
+                  );
                 default:
-                  return const HomeScreen();
+                  return HomeScreen(scaffoldKey: _scaffoldKey);
               }
             },
           );
         },
+        onUnknownRoute: (settings) => MaterialPageRoute(
+          builder: (context) => HomeScreen(scaffoldKey: _scaffoldKey),
+        ),
       ),
     );
   }

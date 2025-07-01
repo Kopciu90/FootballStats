@@ -10,4 +10,11 @@ class League {
       name: json['strLeague'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idLeague': id,
+      'strLeague': name,
+    };
+  }
 }

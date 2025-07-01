@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../widgets/loading_ball.dart' as widgets;
 import '../models/league.dart';
-import 'teams_screen.dart'; // Dodaj ten import
+import 'teams_screen.dart';
 
 class LeaguesScreen extends StatelessWidget {
-  const LeaguesScreen({super.key});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const LeaguesScreen({super.key, required this.scaffoldKey});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Wybierz ligę'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Wybierz ligę'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () => scaffoldKey.currentState?.openDrawer(),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<League>>(
         future: ApiService.fetchLeagues(),
         builder: (context, snapshot) {
@@ -33,8 +44,10 @@ class LeaguesScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          TeamsScreen(leagueName: league.name),
+                      builder: (context) => TeamsScreen(
+                        leagueName: league.name,
+                        scaffoldKey: scaffoldKey, // DODANE
+                      ),
                     ),
                   );
                 },
