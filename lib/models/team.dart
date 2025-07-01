@@ -16,4 +16,12 @@ class Team {
       badgeUrl: json['strTeamBadge'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idTeam': id,
+      'strTeam': name,
+      'strTeamBadge': badgeUrl,
+    };
+  }
 }

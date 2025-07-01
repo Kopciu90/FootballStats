@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/team.dart';
+import '../providers/favorites_provider.dart';
 import '../services/api_service.dart';
 import '../widgets/loading_ball.dart';
 import 'team_detail_screen.dart';
@@ -15,6 +17,13 @@ class TeamsScreen extends StatefulWidget {
 
 class _TeamsScreenState extends State<TeamsScreen> {
   bool isGrid = false;
+  late Future<List<Team>> _teamsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _teamsFuture = ApiService.fetchTeams(widget.leagueName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +42,30 @@ class _TeamsScreenState extends State<TeamsScreen> {
         ],
       ),
       body: FutureBuilder<List<Team>>(
-        future: ApiService.fetchTeams(widget.leagueName),
+        future: _teamsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: LoadingBall());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Błąd: ${snapshot.error}'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Błąd podczas ładowania drużyn:'),
+                  Text(snapshot.error.toString()),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _teamsFuture = ApiService.fetchTeams(widget.leagueName);
+                      });
+                    },
+                    child: const Text('Spróbuj ponownie'),
+                  ),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Brak drużyn'));
+            return const Center(child: Text('Brak drużyn w tej lidze'));
           }
 
           final teams = snapshot.data!;
@@ -66,13 +91,40 @@ class _TeamsScreenState extends State<TeamsScreen> {
                         );
                       },
                       child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Stack(
                           children: [
-                            if (team.badgeUrl != null)
-                              Image.network(team.badgeUrl!, height: 50),
-                            const SizedBox(height: 8),
-                            Text(team.name, textAlign: TextAlign.center),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (team.badgeUrl != null)
+                                  Image.network(team.badgeUrl!, height: 50),
+                                const SizedBox(height: 8),
+                                Text(team.name, textAlign: TextAlign.center),
+                              ],
+                            ),
+                            Positioned(
+                              top: 5,
+                              right: 5,
+                              child: Consumer<FavoritesProvider>(
+                                builder: (context, favorites, child) {
+                                  return IconButton(
+                                    icon: Icon(
+                                      favorites.isFavorite(team.id)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      if (favorites.isFavorite(team.id)) {
+                                        favorites.removeFavorite(team.id);
+                                      } else {
+                                        favorites.addFavorite(team);
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -88,6 +140,25 @@ class _TeamsScreenState extends State<TeamsScreen> {
                           ? Image.network(team.badgeUrl!, height: 40)
                           : null,
                       title: Text(team.name),
+                      trailing: Consumer<FavoritesProvider>(
+                        builder: (context, favorites, child) {
+                          return IconButton(
+                            icon: Icon(
+                              favorites.isFavorite(team.id)
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: Colors.red,
+                            ),
+                            onPressed: () {
+                              if (favorites.isFavorite(team.id)) {
+                                favorites.removeFavorite(team.id);
+                              } else {
+                                favorites.addFavorite(team);
+                              }
+                            },
+                          );
+                        },
+                      ),
                       onTap: () {
                         Navigator.push(
                           context,

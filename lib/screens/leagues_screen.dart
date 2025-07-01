@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/league.dart';
 import '../services/api_service.dart';
 import '../widgets/loading_ball.dart' as widgets;
-import 'teams_screen.dart';
+import '../models/league.dart';
+import 'teams_screen.dart'; // Dodaj ten import
 
 class LeaguesScreen extends StatelessWidget {
   const LeaguesScreen({super.key});

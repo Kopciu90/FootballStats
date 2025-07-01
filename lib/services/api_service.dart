@@ -12,25 +12,31 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List leagues = data['leagues'];
+      final List leagues = data['leagues'] ?? [];
       return leagues.map((json) => League.fromJson(json)).toList();
     } else {
-      throw Exception('Nie udało się pobrać lig');
+      throw Exception('Nie udało się pobrać lig. Status: ${response.statusCode}');
     }
   }
 
   static Future<List<Team>> fetchTeams(String leagueName) async {
+    final encodedLeagueName = Uri.encodeComponent(leagueName);
     final url = Uri.parse(
-      'https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=$leagueName',
+      'https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=$encodedLeagueName',
     );
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      if (data['teams'] == null) return [];
+      
       final List teams = data['teams'];
-      return teams.map((json) => Team.fromJson(json)).toList();
+      return teams
+          .where((team) => team['strTeam'] != null && team['idTeam'] != null)
+          .map((json) => Team.fromJson(json))
+          .toList();
     } else {
-      throw Exception('Nie udało się pobrać drużyn');
+      throw Exception('Nie udało się pobrać drużyn. Status: ${response.statusCode}');
     }
   }
 
