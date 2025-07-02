@@ -52,7 +52,19 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.team.name),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.team.badgeUrl != null)
+              Image.network(
+                widget.team.badgeUrl!,
+                height: 30,
+                width: 30,
+              ),
+            const SizedBox(width: 12),
+            Text(widget.team.name),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite),
@@ -151,20 +163,36 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
                       ),
                     const SizedBox(height: 20),
                     
-                    // Drużyny i wynik
+                    // Drużyny i wynik z herbami
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        // Gospodarz
                         Expanded(
-                          child: Text(
-                            match['title']?.split(' vs ')[0] ?? 'Gospodarz',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Column(
+                            children: [
+                              if ((match['homeBadge'] ?? '').isNotEmpty)
+                                Image.network(
+                                  match['homeBadge']!,
+                                  height: 50,
+                                  width: 50,
+                                  errorBuilder: (context, error, stackTrace) => 
+                                    const Icon(Icons.error),
+                                ),
+                              const SizedBox(height: 8),
+                              Text(
+                                match['homeTeam'] ?? 'Gospodarz',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                        
+                        // Wynik
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -183,14 +211,29 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
                             ),
                           ),
                         ),
+                        
+                        // Gość
                         Expanded(
-                          child: Text(
-                            match['title']?.split(' vs ')[1] ?? 'Gość',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Column(
+                            children: [
+                              if ((match['awayBadge'] ?? '').isNotEmpty)
+                                Image.network(
+                                  match['awayBadge']!,
+                                  height: 50,
+                                  width: 50,
+                                  errorBuilder: (context, error, stackTrace) => 
+                                    const Icon(Icons.error),
+                                ),
+                              const SizedBox(height: 8),
+                              Text(
+                                match['awayTeam'] ?? 'Gość',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -220,6 +263,15 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
             (match) => Card(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: ListTile(
+                leading: (match['homeBadge'] ?? '').isNotEmpty
+                  ? Image.network(
+                      match['homeBadge']!,
+                      height: 40,
+                      width: 40,
+                      errorBuilder: (context, error, stackTrace) => 
+                        const Icon(Icons.sports_soccer),
+                    )
+                  : null,
                 title: Text(
                   match['title'] ?? 'Mecz',
                   style: const TextStyle(
@@ -231,14 +283,15 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
                   '${match['date']} • ${match['time']}',
                   style: const TextStyle(fontSize: 14),
                 ),
-                trailing: Text(
-                  match['competition'] ?? '',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+                trailing: (match['awayBadge'] ?? '').isNotEmpty
+                  ? Image.network(
+                      match['awayBadge']!,
+                      height: 40,
+                      width: 40,
+                      errorBuilder: (context, error, stackTrace) => 
+                        const Icon(Icons.sports_soccer),
+                    )
+                  : null,
               ),
             ),
           ),
@@ -317,7 +370,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: const Icon(Icons.person, size: 40, color: Colors.green),
+        leading: (manager['thumbnail'] ?? '').isNotEmpty
+          ? CircleAvatar(
+              radius: 25,
+              backgroundImage: NetworkImage(manager['thumbnail']!),
+            )
+          : const Icon(Icons.person, size: 40, color: Colors.green),
         title: Text(
           manager['name']!,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -341,7 +399,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
-        leading: player['number']!.isNotEmpty
+        leading: (player['thumbnail'] ?? '').isNotEmpty
+          ? CircleAvatar(
+              radius: 25,
+              backgroundImage: NetworkImage(player['thumbnail']!),
+            )
+          : player['number']!.isNotEmpty
             ? CircleAvatar(
                 radius: 22,
                 backgroundColor: Colors.green,

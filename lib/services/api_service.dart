@@ -43,7 +43,7 @@ class ApiService {
     }
   }
 
-  // Ostatnie mecze drużyny - bez strzelców bramek
+  // Ostatnie mecze drużyny
   static Future<List<Map<String, String>>> fetchLastEvents(String teamId) async {
     final url = Uri.parse('$baseUrl/$sportsDbApiKey/eventslast.php?id=$teamId');
     final response = await http.get(url);
@@ -71,6 +71,10 @@ class ApiService {
               'date': '$formattedDate',
               'time': '$formattedTime',
               'competition': e['strLeague']?.toString() ?? 'Brak danych',
+              'homeTeam': e['strHomeTeam']?.toString() ?? '',
+              'awayTeam': e['strAwayTeam']?.toString() ?? '',
+              'homeBadge': e['strHomeTeamBadge']?.toString() ?? '',
+              'awayBadge': e['strAwayTeamBadge']?.toString() ?? '',
             };
           })
           .toList();
@@ -100,6 +104,10 @@ class ApiService {
               'date': '${_formatDate(dateTime)}',
               'time': '${_formatTime(dateTime)}',
               'competition': e['strLeague']?.toString() ?? 'Brak danych',
+              'homeTeam': e['strHomeTeam']?.toString() ?? '',
+              'awayTeam': e['strAwayTeam']?.toString() ?? '',
+              'homeBadge': e['strHomeTeamBadge']?.toString() ?? '',
+              'awayBadge': e['strAwayTeamBadge']?.toString() ?? '',
             };
           })
           .toList();
@@ -146,6 +154,7 @@ class ApiService {
       'number': p['strNumber']?.toString() ?? '',
       'nationality': p['strNationality']?.toString() ?? '',
       'isManager': isManager.toString(),
+      'thumbnail': p['strThumb']?.toString() ?? '',
     };
   }
 
