@@ -4,7 +4,7 @@ import '../models/league.dart';
 import '../models/team.dart';
 
 class ApiService {
-  static const String SPORTS_DB_API_KEY = '859598'; // Twój klucz premium
+  static const String SPORTS_DB_API_KEY = '859598';
   static const String BASE_URL = 'https://www.thesportsdb.com/api/v1/json';
 
   // Pobierz wszystkie ligi
@@ -55,9 +55,17 @@ class ApiService {
       return (data['results'] as List)
           .take(5)
           .map<Map<String, String>>((e) {
+            final date = e['dateEvent'] ?? '';
+            final time = e['strTime'] ?? '';
+            final homeGoals = e['intHomeScore']?.toString() ?? '0';
+            final awayGoals = e['intAwayScore']?.toString() ?? '0';
+            
             return {
               'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
-              'score': '${e['intHomeScore']} : ${e['intAwayScore']}',
+              'score': '$homeGoals : $awayGoals',
+              'date': '$date $time',
+              'homeScorers': e['strHomeGoalDetails']?.toString() ?? '',
+              'awayScorers': e['strAwayGoalDetails']?.toString() ?? '',
             };
           })
           .toList();
@@ -93,7 +101,7 @@ class ApiService {
     }
   }
 
-  // Skład drużyny (poprawione rzutowanie typów)
+  // Skład drużyny
   static Future<List<Map<String, String>>> fetchTeamPlayers(String teamId) async {
     final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/lookup_all_players.php?id=$teamId');
     final response = await http.get(url);
@@ -102,19 +110,36 @@ class ApiService {
       final data = jsonDecode(response.body);
       if (data['player'] == null) return [];
       
-      return (data['player'] as List)
-          .map<Map<String, String>>((p) {
-            return {
-              'name': p['strPlayer']?.toString() ?? 'Nieznany',
-              'position': p['strPosition']?.toString() ?? 'Brak danych',
-              'number': p['strNumber']?.toString() ?? '',
-              'nationality': p['strNationality']?.toString() ?? '',
-            };
-          })
-          .toList();
+      final List players = data['player'] as List;
+      
+      // Oddziel menadżerów od zawodników
+      final managers = players.where((p) {
+        final position = (p['strPosition']?.toString() ?? '').toLowerCase();
+        return position.contains('manager') || position.contains('coach');
+      });
+      
+      final otherPlayers = players.where((p) {
+        final position = (p['strPosition']?.toString() ?? '').toLowerCase();
+        return !position.contains('manager') && !position.contains('coach');
+      });
+      
+      return [
+        ...managers.map<Map<String, String>>((p) => _mapPlayer(p, true)),
+        ...otherPlayers.map<Map<String, String>>((p) => _mapPlayer(p, false)),
+      ];
     } else {
       throw Exception('Nie udało się pobrać składu drużyny');
     }
+  }
+
+  static Map<String, String> _mapPlayer(dynamic p, bool isManager) {
+    return {
+      'name': p['strPlayer']?.toString() ?? 'Nieznany',
+      'position': p['strPosition']?.toString() ?? 'Brak danych',
+      'number': p['strNumber']?.toString() ?? '',
+      'nationality': p['strNationality']?.toString() ?? '',
+      'isManager': isManager.toString(),
+    };
   }
 
   // Metody pomocnicze do formatowania daty

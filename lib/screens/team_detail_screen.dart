@@ -107,14 +107,56 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
             ),
           ),
           ...last.map(
-            (match) => ListTile(
-              title: Text(
-                match['title'] ?? 'Mecz',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              subtitle: Text(
-                match['score'] ?? 'Brak wyniku',
-                style: const TextStyle(fontSize: 14),
+            (match) => Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      match['title'] ?? 'Mecz',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Data: ${match['date'] ?? 'Brak daty'}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          match['score'] ?? '0 : 0',
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    if ((match['homeScorers'] ?? '').isNotEmpty) ...[
+                      Text(
+                        'Gole gospodarzy: ${match['homeScorers']}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 5),
+                    ],
+                    if ((match['awayScorers'] ?? '').isNotEmpty) ...[
+                      Text(
+                        'Gole gości: ${match['awayScorers']}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -165,29 +207,96 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
         ),
       );
     }
-    return ListView.builder(
-      itemCount: players.length,
-      itemBuilder: (context, index) {
-        final player = players[index];
-        return ListTile(
-          leading: player['number']!.isNotEmpty
-              ? CircleAvatar(
-                  child: Text(player['number']!),
-                )
-              : null,
-          title: Text(
-            player['name']!,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+    
+    // Podziel na menadżerów i zawodników
+    final managers = players.where((p) => p['isManager'] == 'true').toList();
+    final teamPlayers = players.where((p) => p['isManager'] != 'true').toList();
+    
+    return ListView(
+      children: [
+        // Sekcja menadżerów
+        if (managers.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.only(top: 16, left: 16, right: 16),
+            child: Text(
+              'Trenerzy',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pozycja: ${player['position']}'),
+          ...managers.map((manager) => _buildManagerTile(manager)),
+        ],
+        
+        // Sekcja zawodników
+        if (teamPlayers.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.only(top: 24, left: 16, right: 16),
+            child: Text(
+              'Zawodnicy',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ...teamPlayers.map((player) => _buildPlayerTile(player)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildManagerTile(Map<String, String> manager) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: Colors.green[50],
+      child: ListTile(
+        leading: const Icon(Icons.person, size: 40, color: Colors.green),
+        title: Text(
+          manager['name']!,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pozycja: ${manager['position']}'),
+            if (manager['nationality']?.isNotEmpty ?? false)
+              Text('Narodowość: ${manager['nationality']}'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayerTile(Map<String, String> player) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ListTile(
+        leading: player['number']!.isNotEmpty
+            ? CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.green,
+                child: Text(
+                  player['number']!,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white
+                  ),
+                ),
+              )
+            : const CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey,
+                child: Text('?', style: TextStyle(color: Colors.white)),
+              ),
+        title: Text(
+          player['name']!,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Pozycja: ${player['position']}'),
+            if (player['nationality']?.isNotEmpty ?? false)
               Text('Narodowość: ${player['nationality']}'),
-            ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
