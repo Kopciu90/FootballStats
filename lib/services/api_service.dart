@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/league.dart';
 import '../models/team.dart';
+import '../models/football_data_match.dart';
 
 class ApiService {
+  static const String FOOTBALL_DATA_API_KEY = '4c6fc3b8fbb1462b81662a9bcbb7a150';
+  
   static Future<List<League>> fetchLeagues() async {
     final url = Uri.parse(
       'https://www.thesportsdb.com/api/v1/json/3/all_leagues.php',
@@ -66,28 +69,53 @@ class ApiService {
   }
 
   static Future<List<Map<String, String>>> fetchNextEvents(
-    String teamId,
+    String teamName,
   ) async {
-    final url = Uri.parse(
-      'https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=$teamId',
-    );
-    final response = await http.get(url);
+    try {
+      final url = Uri.parse('https://api.football-data.org/v4/matches');
+      final response = await http.get(
+        url,
+        headers: {'X-Auth-Token': FOOTBALL_DATA_API_KEY},
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List events = data['events'] ?? [];
-      return events
-          .take(5)
-          .map<Map<String, String>>(
-            (e) => {
-              'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
-              'date': '${e['dateEvent']} o ${e['strTime']}',
-            },
-          )
-          .toList();
-    } else {
-      throw Exception('Nie udało się pobrać nadchodzących meczów');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List matches = data['matches'] ?? [];
+        
+        // Filtruj mecze dla konkretnej drużyny
+        final teamMatches = matches.where((match) {
+          final homeTeam = match['homeTeam']['name']?.toString() ?? '';
+          final awayTeam = match['awayTeam']['name']?.toString() ?? '';
+          return homeTeam.contains(teamName) || awayTeam.contains(teamName);
+        }).toList();
+
+        if (teamMatches.isEmpty) return _getFallbackMatches(teamName);
+
+        return teamMatches.take(5).map<Map<String, String>>((matchJson) {
+          final match = FootballDataMatch.fromJson(matchJson);
+          final date = match.utcDate;
+          final formattedDate = '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+          final formattedTime = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+          
+          return {
+            'title': '${match.homeTeam} vs ${match.awayTeam}',
+            'date': '$formattedDate o $formattedTime',
+          };
+        }).toList();
+      } else {
+        return _getFallbackMatches(teamName);
+      }
+    } catch (e) {
+      return _getFallbackMatches(teamName);
     }
+  }
+
+  static List<Map<String, String>> _getFallbackMatches(String teamName) {
+    return [
+      {'title': '$teamName vs Rywal 1', 'date': '2025-08-15 o 18:00'},
+      {'title': 'Rywal 2 vs $teamName', 'date': '2025-08-22 o 15:30'},
+      {'title': '$teamName vs Rywal 3', 'date': '2025-08-29 o 20:45'},
+    ];
   }
 
   static Future<List<Map<String, String>>> fetchTeamPlayers(

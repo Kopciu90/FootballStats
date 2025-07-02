@@ -15,7 +15,6 @@ class FavoritesProvider with ChangeNotifier {
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Ładujemy ulubione drużyny
     final teamsJson = prefs.getString('favorite_teams');
     if (teamsJson != null) {
       final List<dynamic> data = json.decode(teamsJson);
@@ -33,7 +32,6 @@ class FavoritesProvider with ChangeNotifier {
     await prefs.setString('favorite_teams', teamsJson);
   }
 
-  // Metody dla drużyn
   void addFavoriteTeam(Team team) {
     if (!_favoriteTeams.any((t) => t.id == team.id)) {
       _favoriteTeams.add(team);

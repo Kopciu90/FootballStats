@@ -105,7 +105,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
                       child: Card(
                         child: Stack(
                           children: [
-                            // Dodane Center dla wyśrodkowania zawartości
                             Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +112,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
                                   if (team.badgeUrl != null)
                                     Image.network(team.badgeUrl!, height: 50),
                                   const SizedBox(height: 8),
-                                  // Wyśrodkowany tekst z możliwością zawijania
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 4.0,

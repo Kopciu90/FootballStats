@@ -46,7 +46,7 @@ class LeaguesScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => TeamsScreen(
                         leagueName: league.name,
-                        scaffoldKey: scaffoldKey, // DODANE
+                        scaffoldKey: scaffoldKey,
                       ),
                     ),
                   );

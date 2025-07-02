@@ -30,11 +30,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
   }
 
   Future<Map<String, dynamic>> _loadTeamData() async {
-    final lastMatches = await ApiService.fetchLastEvents(widget.team.id);
-    final nextMatches = await ApiService.fetchNextEvents(widget.team.id);
-    final players = await ApiService.fetchTeamPlayers(widget.team.id);
-
-    return {'last': lastMatches, 'next': nextMatches, 'players': players};
+    try {
+      final lastMatches = await ApiService.fetchLastEvents(widget.team.id);
+      final nextMatches = await ApiService.fetchNextEvents(widget.team.name);
+      final players = await ApiService.fetchTeamPlayers(widget.team.id);
+      return {'last': lastMatches, 'next': nextMatches, 'players': players};
+    } catch (e) {
+      return {
+        'last': [],
+        'next': [],
+        'players': []
+      };
+    }
   }
 
   @override
@@ -88,47 +95,86 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
   ) {
     return ListView(
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Ostatnie mecze',
-            style: TextStyle(fontWeight: FontWeight.bold),
+        if (last.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Ostatnie mecze',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        ...last.map(
-          (match) => ListTile(
-            title: Text(match['title'] ?? ''),
-            subtitle: Text(match['score'] ?? ''),
+          ...last.map(
+            (match) => ListTile(
+              title: Text(
+                match['title'] ?? 'Mecz',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              subtitle: Text(
+                match['score'] ?? 'Brak wyniku',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
           ),
-        ),
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Nadchodzące mecze',
-            style: TextStyle(fontWeight: FontWeight.bold),
+        ],
+        
+        if (next.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Nadchodzące mecze',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-        ...next.map(
-          (match) => ListTile(
-            title: Text(match['title'] ?? ''),
-            subtitle: Text(match['date'] ?? ''),
+          ...next.map(
+            (match) => ListTile(
+              title: Text(
+                match['title'] ?? 'Mecz',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              subtitle: Text(
+                match['date'] ?? 'Brak daty',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
           ),
-        ),
+        ],
+        
+        if (last.isEmpty && next.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Center(
+              child: Text(
+                'Brak danych o meczach',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            ),
+          ),
       ],
     );
   }
 
   Widget _buildPlayersTab(List<Map<String, String>> players) {
     if (players.isEmpty) {
-      return const Center(child: Text('Brak danych o składzie'));
+      return const Center(
+        child: Text(
+          'Brak danych o składzie',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      );
     }
     return ListView.builder(
       itemCount: players.length,
       itemBuilder: (context, index) {
         final player = players[index];
         return ListTile(
-          title: Text(player['name'] ?? ''),
-          subtitle: Text(player['position'] ?? ''),
+          title: Text(
+            player['name'] ?? 'Nieznany zawodnik',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          subtitle: Text(
+            player['position'] ?? 'Nieznana pozycja',
+            style: const TextStyle(fontSize: 14),
+          ),
         );
       },
     );

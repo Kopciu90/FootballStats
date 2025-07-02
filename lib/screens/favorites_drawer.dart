@@ -15,7 +15,7 @@ class FavoritesDrawer extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.green),
             child: Center(
               child: Text(
-                'Ulubione drużyny', // Zmieniony tytuł
+                'Ulubione drużyny',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
@@ -44,7 +44,7 @@ class FavoritesDrawer extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (context) => TeamDetailScreen(
                               team: team,
-                              scaffoldKey: GlobalKey(), // Tymczasowe rozwiązanie
+                              scaffoldKey: GlobalKey(),
                             ),
                           ),
                         );
