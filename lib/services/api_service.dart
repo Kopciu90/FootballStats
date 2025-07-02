@@ -4,12 +4,12 @@ import '../models/league.dart';
 import '../models/team.dart';
 
 class ApiService {
-  static const String SPORTS_DB_API_KEY = '859598';
-  static const String BASE_URL = 'https://www.thesportsdb.com/api/v1/json';
+  static const String sportsDbApiKey = '859598';
+  static const String baseUrl = 'https://www.thesportsdb.com/api/v1/json';
 
   // Pobierz wszystkie ligi
   static Future<List<League>> fetchLeagues() async {
-    final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/all_leagues.php');
+    final url = Uri.parse('$baseUrl/$sportsDbApiKey/all_leagues.php');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -27,7 +27,7 @@ class ApiService {
   // Pobierz drużyny w lidze
   static Future<List<Team>> fetchTeams(String leagueName) async {
     final encodedName = Uri.encodeComponent(leagueName);
-    final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/search_all_teams.php?l=$encodedName');
+    final url = Uri.parse('$baseUrl/$sportsDbApiKey/search_all_teams.php?l=$encodedName');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -43,9 +43,9 @@ class ApiService {
     }
   }
 
-  // Ostatnie mecze drużyny
+  // Ostatnie mecze drużyny - bez strzelców bramek
   static Future<List<Map<String, String>>> fetchLastEvents(String teamId) async {
-    final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/eventslast.php?id=$teamId');
+    final url = Uri.parse('$baseUrl/$sportsDbApiKey/eventslast.php?id=$teamId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -60,12 +60,17 @@ class ApiService {
             final homeGoals = e['intHomeScore']?.toString() ?? '0';
             final awayGoals = e['intAwayScore']?.toString() ?? '0';
             
+            // Formatuj datę
+            final dateTime = DateTime.tryParse('$date $time') ?? DateTime.now();
+            final formattedDate = '${_formatDate(dateTime)}';
+            final formattedTime = '${_formatTime(dateTime)}';
+            
             return {
               'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
               'score': '$homeGoals : $awayGoals',
-              'date': '$date $time',
-              'homeScorers': e['strHomeGoalDetails']?.toString() ?? '',
-              'awayScorers': e['strAwayGoalDetails']?.toString() ?? '',
+              'date': '$formattedDate',
+              'time': '$formattedTime',
+              'competition': e['strLeague']?.toString() ?? 'Brak danych',
             };
           })
           .toList();
@@ -76,7 +81,7 @@ class ApiService {
 
   // Nadchodzące mecze drużyny
   static Future<List<Map<String, String>>> fetchNextEvents(String teamId) async {
-    final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/eventsnext.php?id=$teamId');
+    final url = Uri.parse('$baseUrl/$sportsDbApiKey/eventsnext.php?id=$teamId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -92,7 +97,9 @@ class ApiService {
             
             return {
               'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
-              'date': '${_formatDate(dateTime)} o ${_formatTime(dateTime)}',
+              'date': '${_formatDate(dateTime)}',
+              'time': '${_formatTime(dateTime)}',
+              'competition': e['strLeague']?.toString() ?? 'Brak danych',
             };
           })
           .toList();
@@ -103,7 +110,7 @@ class ApiService {
 
   // Skład drużyny
   static Future<List<Map<String, String>>> fetchTeamPlayers(String teamId) async {
-    final url = Uri.parse('$BASE_URL/$SPORTS_DB_API_KEY/lookup_all_players.php?id=$teamId');
+    final url = Uri.parse('$baseUrl/$sportsDbApiKey/lookup_all_players.php?id=$teamId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

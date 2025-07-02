@@ -101,60 +101,100 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
         if (last.isNotEmpty) ...[
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Ostatnie mecze',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            child: Center(
+              child: Text(
+                'OSTATNIE 5 MECZÓW',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
             ),
           ),
           ...last.map(
             (match) => Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              elevation: 3,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      match['title'] ?? 'Mecz',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                    // Data i czas
+                    Center(
+                      child: Text(
+                        '${match['date']} • ${match['time']}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Data: ${match['date'] ?? 'Brak daty'}',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          match['score'] ?? '0 : 0',
+                    const SizedBox(height: 12),
+                    
+                    // Rozgrywki
+                    if ((match['competition'] ?? '').isNotEmpty)
+                      Center(
+                        child: Text(
+                          match['competition']!,
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    
+                    // Drużyny i wynik
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            match['title']?.split(' vs ')[0] ?? 'Gospodarz',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            match['score'] ?? '0:0',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            match['title']?.split(' vs ')[1] ?? 'Gość',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    if ((match['homeScorers'] ?? '').isNotEmpty) ...[
-                      Text(
-                        'Gole gospodarzy: ${match['homeScorers']}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(height: 5),
-                    ],
-                    if ((match['awayScorers'] ?? '').isNotEmpty) ...[
-                      Text(
-                        'Gole gości: ${match['awayScorers']}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -164,21 +204,41 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
         
         if (next.isNotEmpty) ...[
           const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Nadchodzące mecze',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            padding: EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 8),
+            child: Center(
+              child: Text(
+                'NADCHODZĄCE MECZE',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
             ),
           ),
           ...next.map(
-            (match) => ListTile(
-              title: Text(
-                match['title'] ?? 'Mecz',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              subtitle: Text(
-                match['date'] ?? 'Brak daty',
-                style: const TextStyle(fontSize: 14),
+            (match) => Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                title: Text(
+                  match['title'] ?? 'Mecz',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                subtitle: Text(
+                  '${match['date']} • ${match['time']}',
+                  style: const TextStyle(fontSize: 14),
+                ),
+                trailing: Text(
+                  match['competition'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
             ),
           ),
@@ -219,8 +279,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
           const Padding(
             padding: EdgeInsets.only(top: 16, left: 16, right: 16),
             child: Text(
-              'Trenerzy',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'TRENERZY',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
           ),
           ...managers.map((manager) => _buildManagerTile(manager)),
@@ -231,8 +295,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
           const Padding(
             padding: EdgeInsets.only(top: 24, left: 16, right: 16),
             child: Text(
-              'Zawodnicy',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'ZAWODNICY',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
           ),
           ...teamPlayers.map((player) => _buildPlayerTile(player)),
@@ -245,6 +313,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Colors.green[50],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: ListTile(
         leading: const Icon(Icons.person, size: 40, color: Colors.green),
         title: Text(
@@ -265,24 +336,34 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
 
   Widget _buildPlayerTile(Map<String, String> player) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: ListTile(
         leading: player['number']!.isNotEmpty
             ? CircleAvatar(
-                radius: 20,
+                radius: 22,
                 backgroundColor: Colors.green,
                 child: Text(
                   player['number']!,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
+                    fontSize: 16,
                     color: Colors.white
                   ),
                 ),
               )
             : const CircleAvatar(
-                radius: 20,
+                radius: 22,
                 backgroundColor: Colors.grey,
-                child: Text('?', style: TextStyle(color: Colors.white)),
+                child: Text(
+                  '?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
         title: Text(
           player['name']!,
