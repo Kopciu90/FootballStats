@@ -32,14 +32,18 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
   Future<Map<String, dynamic>> _loadTeamData() async {
     try {
       final lastMatches = await ApiService.fetchLastEvents(widget.team.id);
-      final nextMatches = await ApiService.fetchNextEvents(widget.team.name);
+      final nextMatches = await ApiService.fetchNextEvents(widget.team.id);
       final players = await ApiService.fetchTeamPlayers(widget.team.id);
-      return {'last': lastMatches, 'next': nextMatches, 'players': players};
+      return {
+        'last': lastMatches,
+        'next': nextMatches,
+        'players': players,
+      };
     } catch (e) {
       return {
-        'last': [],
-        'next': [],
-        'players': []
+        'last': <Map<String, String>>[],
+        'next': <Map<String, String>>[],
+        'players': <Map<String, String>>[],
       };
     }
   }
@@ -73,8 +77,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
           } else {
             final last = snapshot.data!['last'] as List<Map<String, String>>;
             final next = snapshot.data!['next'] as List<Map<String, String>>;
-            final players =
-                snapshot.data!['players'] as List<Map<String, String>>;
+            final players = snapshot.data!['players'] as List<Map<String, String>>;
 
             return TabBarView(
               controller: _tabController,
@@ -167,13 +170,21 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
       itemBuilder: (context, index) {
         final player = players[index];
         return ListTile(
+          leading: player['number']!.isNotEmpty
+              ? CircleAvatar(
+                  child: Text(player['number']!),
+                )
+              : null,
           title: Text(
-            player['name'] ?? 'Nieznany zawodnik',
+            player['name']!,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
-          subtitle: Text(
-            player['position'] ?? 'Nieznana pozycja',
-            style: const TextStyle(fontSize: 14),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pozycja: ${player['position']}'),
+              Text('Narodowość: ${player['nationality']}'),
+            ],
           ),
         );
       },
