@@ -11,7 +11,7 @@ class TeamsScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   const TeamsScreen({
-    super.key, 
+    super.key,
     required this.leagueName,
     required this.scaffoldKey,
   });
@@ -105,14 +105,29 @@ class _TeamsScreenState extends State<TeamsScreen> {
                       child: Card(
                         child: Stack(
                           children: [
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (team.badgeUrl != null)
-                                  Image.network(team.badgeUrl!, height: 50),
-                                const SizedBox(height: 8),
-                                Text(team.name, textAlign: TextAlign.center),
-                              ],
+                            // Dodane Center dla wyśrodkowania zawartości
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (team.badgeUrl != null)
+                                    Image.network(team.badgeUrl!, height: 50),
+                                  const SizedBox(height: 8),
+                                  // Wyśrodkowany tekst z możliwością zawijania
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4.0,
+                                    ),
+                                    child: Text(
+                                      team.name,
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             Positioned(
                               top: 5,
