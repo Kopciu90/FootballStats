@@ -7,7 +7,7 @@ class ApiService {
   static const String sportsDbApiKey = '859598';
   static const String baseUrl = 'https://www.thesportsdb.com/api/v1/json';
 
-  // Pobierz wszystkie ligi
+  // wszystkie ligi
   static Future<List<League>> fetchLeagues() async {
     final url = Uri.parse('$baseUrl/$sportsDbApiKey/all_leagues.php');
     final response = await http.get(url);
@@ -24,7 +24,7 @@ class ApiService {
     }
   }
 
-  // Pobierz drużyny w lidze
+  // drużyny w lidze
   static Future<List<Team>> fetchTeams(String leagueName) async {
     final encodedName = Uri.encodeComponent(leagueName);
     final url = Uri.parse('$baseUrl/$sportsDbApiKey/search_all_teams.php?l=$encodedName');
@@ -43,7 +43,7 @@ class ApiService {
     }
   }
 
-  // Ostatnie mecze drużyny
+  // Ostatnie mecze 
   static Future<List<Map<String, String>>> fetchLastEvents(String teamId) async {
     final url = Uri.parse('$baseUrl/$sportsDbApiKey/eventslast.php?id=$teamId');
     final response = await http.get(url);
@@ -60,7 +60,7 @@ class ApiService {
             final homeGoals = e['intHomeScore']?.toString() ?? '0';
             final awayGoals = e['intAwayScore']?.toString() ?? '0';
             
-            // Formatuj datę
+            //formatowanie daty
             final dateTime = DateTime.tryParse('$date $time') ?? DateTime.now();
             final formattedDate = _formatDate(dateTime);
             final formattedTime = _formatTime(dateTime);
@@ -83,7 +83,7 @@ class ApiService {
     }
   }
 
-  // Nadchodzące mecze drużyny
+  // Nadchodzące mecze 
   static Future<List<Map<String, String>>> fetchNextEvents(String teamId) async {
     final url = Uri.parse('$baseUrl/$sportsDbApiKey/eventsnext.php?id=$teamId');
     final response = await http.get(url);
@@ -129,7 +129,7 @@ class ApiService {
       
       final List players = data['player'] as List;
       
-      // Oddziel menadżerów od zawodników
+      // Podział menadzer a zawodnicy
       final managers = players.where((p) {
         final position = (p['strPosition']?.toString() ?? '').toLowerCase();
         return position.contains('manager') || position.contains('coach');
@@ -160,7 +160,7 @@ class ApiService {
     };
   }
 
-  // Metody pomocnicze do formatowania daty
+  // formatowanie daty
   static String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
   }

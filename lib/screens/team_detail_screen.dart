@@ -321,13 +321,13 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
       );
     }
     
-    // Podziel na menadżerów i zawodników
+    // podział na menadżerów i zawodników
     final managers = players.where((p) => p['isManager'] == 'true').toList();
     final teamPlayers = players.where((p) => p['isManager'] != 'true').toList();
     
     return ListView(
       children: [
-        // Sekcja menadżerów
+        // menadzer
         if (managers.isNotEmpty) ...[
           const Padding(
             padding: EdgeInsets.only(top: 16, left: 16, right: 16),
@@ -343,7 +343,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen>
           ...managers.map((manager) => _buildManagerTile(manager)),
         ],
         
-        // Sekcja zawodników
+        // zawodnicy
         if (teamPlayers.isNotEmpty) ...[
           const Padding(
             padding: EdgeInsets.only(top: 24, left: 16, right: 16),
