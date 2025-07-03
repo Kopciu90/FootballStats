@@ -62,14 +62,14 @@ class ApiService {
             
             // Formatuj datę
             final dateTime = DateTime.tryParse('$date $time') ?? DateTime.now();
-            final formattedDate = '${_formatDate(dateTime)}';
-            final formattedTime = '${_formatTime(dateTime)}';
+            final formattedDate = _formatDate(dateTime);
+            final formattedTime = _formatTime(dateTime);
             
             return {
               'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
               'score': '$homeGoals : $awayGoals',
-              'date': '$formattedDate',
-              'time': '$formattedTime',
+              'date': formattedDate,
+              'time': formattedTime,
               'competition': e['strLeague']?.toString() ?? 'Brak danych',
               'homeTeam': e['strHomeTeam']?.toString() ?? '',
               'awayTeam': e['strAwayTeam']?.toString() ?? '',
@@ -98,11 +98,13 @@ class ApiService {
             final date = e['dateEvent'] ?? '';
             final time = e['strTime'] ?? '00:00';
             final dateTime = DateTime.tryParse('$date $time') ?? DateTime.now();
+            final formattedDate = _formatDate(dateTime);
+            final formattedTime = _formatTime(dateTime);
             
             return {
               'title': '${e['strHomeTeam']} vs ${e['strAwayTeam']}',
-              'date': '${_formatDate(dateTime)}',
-              'time': '${_formatTime(dateTime)}',
+              'date': formattedDate,
+              'time': formattedTime,
               'competition': e['strLeague']?.toString() ?? 'Brak danych',
               'homeTeam': e['strHomeTeam']?.toString() ?? '',
               'awayTeam': e['strAwayTeam']?.toString() ?? '',
